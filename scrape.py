@@ -64,6 +64,18 @@ def twitter(name):
 	elif twitter_page.status_code == 200:
 		return True
 
+		# rstoutarch@aol.com
+
+def getEmail(url_for_email):
+	email_response = requests.get(url_for_email)
+	email_html = email_response.content
+	try:
+		email_soup = BeautifulSoup(email_html, 'html.parser')
+		find_email = email_soup.find('a', attrs={'class': 'email-business'})['href']
+		return find_email[7:len(find_email)]
+	except:
+		return 'not found'
+
 def getListings(url):
 
 	response = requests.get(url)
@@ -72,7 +84,7 @@ def getListings(url):
 	try:
 		soup = BeautifulSoup(html, 'html.parser')
 		search = soup.find('div', attrs={'class': 'search-results organic'})
-		results = search.find('div', attrs={'class': 'result'})
+		results = search.find_all('div', attrs={'class': 'result'})
 	except:
 		pass
 
@@ -81,6 +93,10 @@ def getListings(url):
 		try:
 			name = result.find('a', attrs={'class': 'business-name'})
 			business['name'] = name.text
+			link = name['href']
+			url_for_email = 'https://www.yellowpages.com' + link
+			business['email'] = getEmail(url_for_email)
+				
 		except:
 			business['name'] = 'not found'
 
@@ -139,8 +155,8 @@ def getListings(url):
 		return
 
 searchTerms = '0123456789abcdefghijklmnopqrstuvwxyz'
-locations = ['los+angeles']
-keys = ['name', 'yelp', 'locality', 'region', 'pinterest', 'phone', 'facebook', 'twitter', 'street_address', 'instagram']
+locations = ['riverside']
+keys = ['name', 'yelp', 'locality', 'region', 'pinterest', 'twitter', 'phone', 'facebook', 'email', 'street_address', 'instagram']
 
 with open('./dict.csv', 'wb') as csv_file:
     writer = csv.writer(csv_file)
